@@ -13,9 +13,19 @@ app.get('/', function(req, res) {
   res.send('Todo API Root');
 });
 
+
 app.get('/todos', function(req, res, next) {
-  res.status(200).json(todos);
+  var queryParams = req.query;
+  var filteredTodos = todos;
+
+  if(queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
+    filteredTodos = _.where(filteredTodos, {completed: true});
+  } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+    filteredTodos = _.where(filteredTodos, {completed: false})
+  }
+  res.status(200).json(filteredTodos);
 })
+
 app.get('/todos/:id', function(req, res, next) {
   var todoId = parseInt(req.params.id, 10);
   var matchedTodo = _.findWhere(todos, {id: todoId})
@@ -25,7 +35,6 @@ app.get('/todos/:id', function(req, res, next) {
     res.status(404).send('Not Found');
   }
 })
-
 
 
 app.post('/todos', function(req, res, next) {
@@ -86,9 +95,6 @@ app.put('/todos/:id', function(req, res, next) {
 
   _.extend(matchedTodo, validAttributes);
   res.json(matchedTodo)
-
-
-
 })
 
 
